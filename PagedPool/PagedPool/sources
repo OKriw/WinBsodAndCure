@@ -1,0 +1,11 @@
+TARGETNAME=poolalloc
+TARGETPATH=.
+TARGETTYPE=DRIVER
+SOURCES= PoolAlloc.c 
+
+AMD64_SOURCES=\
+		KeBugPatch.asm\
+		GetArgs.asm\
+		SpoilContext.asm\
+		PushLock.asm
+ 
