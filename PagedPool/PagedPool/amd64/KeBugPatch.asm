@@ -6,7 +6,6 @@ KeBugPatch proc
 		mov		rax, cr0
 		and		rax, 0fffffffffffeffffh
 		mov		cr0, rax
-		;bswap rdx
 		mov	word ptr [rcx], 0bb48h
 		mov qword ptr [rcx+2], rdx
 		mov word ptr [rcx+10], 0d3ffh

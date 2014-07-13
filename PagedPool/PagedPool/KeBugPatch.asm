@@ -6,9 +6,6 @@ opcodes0   dq   0   ; 64 bit data
 opcodes1   dq	0	;
 tmp		   dq	0	;
 .code
-
-; all assembly routines go here
-
 KeBugPatch proc
     	mov    rax, opcodes0
 		bswap  rax
@@ -22,4 +19,4 @@ KeBugPatch proc
     
 KeBugPatch endp
 
-END ; end of assembly file
+END 

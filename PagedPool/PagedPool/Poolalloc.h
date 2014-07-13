@@ -1,64 +1,63 @@
-#define STDCALL __stdcall
-#define _cdecl
-#define __cdecl
+#ifndef _POOLALLOC_H_
+#define _POOLALLOC_H_
 
+#define IOCTL_TO_ALLOCATE_PAGED_POOL (ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2050,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define IOCTL_IF_POOL_WAS_PAGED (ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2051,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define IOCTL_RAISE_IRQL (ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2052,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define IOCTL_GET_PAGE (ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2053,METHOD_BUFFERED,FILE_ANY_ACCESS)
 
-//__declspec(dllimport) SDE KeServiceDescriptorTable;
-//#include <WinNt.h>
-// IOCTLs to control driver
-#define IOCTL_TO_ALLOCATE_PAGED_POOL				(ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2050,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define IOCTL_IF_POOL_WAS_PAGED						(ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2051,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define IOCTL_RAISE_IRQL							(ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2052,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define IOCTL_GET_PAGE								(ULONG)CTL_CODE(FILE_DEVICE_UNKNOWN,2053,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define DEVICE_NAME      L"\\Device\\Pooldevice"
-#define DOS_DEVICE_NAME     L"\\DosDevices\\Pooldosdevice"
-typedef unsigned long       DWORD;
-typedef unsigned char       BYTE;
-typedef	unsigned long*		PDWORD;
-typedef unsigned char*      PBYTE;
-PDEVICE_OBJECT fakeDevice = NULL;
-UINT64		Param1;
-UINT64 		Param2;
-UINT64 		Param3;
-UINT64 		Param4;
-UINT64 		Param5;
-UINT64 		CopyMemRCX;
-UINT64 		CopyMemRDX;
-UINT64 		CopyMemR8;
-UINT64 		CopyMemR9;
-UINT64 		Switcher;
-PVOID 		PtrAddress;
-PVOID 		ReturnValueRtlUnwind;
-SIZE_T 		PtrAddressSize;
-HANDLE   	CurrprocHandle;
-CONTEXT     GlobalContext;//context we get from StackTrace64
-CONTEXT		ContextF1;	  //Context we get from function f1
-CONTEXT		ContextF2;	//Context we get from function f2 spoiled one
-
-VOID 	F1();
-VOID	F2();
-//Structures from WinNt
-
+#define DEVICE_NAME L"\\Device\\Pooldevice"
+#define DOS_DEVICE_NAME L"\\DosDevices\\Pooldosdevice"
 #define UNWIND_HISTORY_TABLE_SIZE 12
 #define RUNTIME_FUNCTION_INDIRECT 0x1
 
+typedef unsigned long DWORD;
+typedef unsigned char BYTE;
+typedef	unsigned long *PDWORD;
+typedef unsigned char *PBYTE;
+
+PDEVICE_OBJECT pFakeDevice = NULL;
+
+UINT64 Param1;
+UINT64 Param2;
+UINT64 Param3;
+UINT64 Param4;
+UINT64 Param5;
+UINT64 CopyMemRCX;
+UINT64 CopyMemRDX;
+UINT64 CopyMemR8;
+UINT64 CopyMemR9;
+UINT64 Switcher;
+PVOID PtrAddress;
+PVOID ReturnValueRtlUnwind;
+SIZE_T PtrAddressSize;
+HANDLE CurrprocHandle;
+CONTEXT GlobalContext;	//context we get from StackTrace64
+CONTEXT	ContextF1;		//Context we get from function f1
+CONTEXT	ContextF2;		//Context we get from function f2 spoiled one
+
+VOID 	F1();
+VOID	F2();
+
+//Structures from WinNt
 
 typedef struct _RUNTIME_FUNCTION {
-    DWORD BeginAddress;
-    DWORD EndAddress;
-    DWORD UnwindData;
+	DWORD BeginAddress;
+	DWORD EndAddress;
+	DWORD UnwindData;
 } RUNTIME_FUNCTION, *PRUNTIME_FUNCTION;
+
 typedef struct _UNWIND_HISTORY_TABLE_ENTRY {
-    DWORD64 ImageBase;
-    PRUNTIME_FUNCTION FunctionEntry;
+	DWORD64 ImageBase;
+	PRUNTIME_FUNCTION FunctionEntry;
 } UNWIND_HISTORY_TABLE_ENTRY, *PUNWIND_HISTORY_TABLE_ENTRY;
 
 typedef struct _UNWIND_HISTORY_TABLE {
     DWORD Count;
-    BYTE  LocalHint;
-    BYTE  GlobalHint;
-    BYTE  Search;
-    BYTE  Once;
+    BYTE LocalHint;
+    BYTE GlobalHint;
+    BYTE Search;
+    BYTE Once;
     DWORD64 LowAddress;
     DWORD64 HighAddress;
     UNWIND_HISTORY_TABLE_ENTRY Entry[UNWIND_HISTORY_TABLE_SIZE];
@@ -68,10 +67,9 @@ NTSYSAPI
 PRUNTIME_FUNCTION
 NTAPI
 RtlLookupFunctionEntry (
-    __in DWORD64 ControlPc,
-    __out PDWORD64 ImageBase,
-    __inout_opt PUNWIND_HISTORY_TABLE HistoryTable
-    );
+	__in DWORD64 ControlPc,
+	__out PDWORD64 ImageBase,
+	__inout_opt PUNWIND_HISTORY_TABLE HistoryTable);
 
 typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
     union {
@@ -139,7 +137,7 @@ VOID  RtlRestoreContext(
     PEXCEPTION_RECORD ExceptionRecord
 );
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////ffffffffffffff
+//////////////////////////////////////////////////////////////////////////////////////////////////
 NTSTATUS STDCALL ZwCreateEvent(
 	OUT PHANDLE  EventHandle,
 	IN ACCESS_MASK  DesiredAccess, 
@@ -153,32 +151,30 @@ NTSTATUS ZwAllocateVirtualMemory(
 		ULONG_PTR ZeroBits,
 		PSIZE_T RegionSize,
 		ULONG AllocationType,
-		ULONG Protect
-);
+		ULONG Protect);
+
 NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory(
     IN HANDLE ProcessHandle,
-    IN PVOID *  BaseAddress,
-    IN SIZE_T *     NumberOfBytesToProtect,
-    IN ULONG    NewAccessProtection,
-    OUT PULONG  OldAccessProtection 
-);
+    IN PVOID *BaseAddress,
+    IN SIZE_T *NumberOfBytesToProtect,
+    IN ULONG NewAccessProtection,
+    OUT PULONG OldAccessProtection);
+
 NTSYSAPI 
 NTSTATUS
 NTAPI
 NtProtectVirtualMemory(
-  IN HANDLE               ProcessHandle,
-  IN OUT PVOID            *BaseAddress,
-  IN SIZE_T*           NumberOfBytesToProtect,
-  IN ULONG                NewAccessProtection,
-  OUT PULONG              OldAccessProtection 
-);
+	IN HANDLE ProcessHandle,
+	IN OUT PVOID *BaseAddress,
+	IN SIZE_T *NumberOfBytesToProtect,
+	IN ULONG NewAccessProtection,
+	OUT PULONG OldAccessProtection);
 	
 VOID  RtlUnwind(
     PVOID TargetFrame,
     PVOID TargetIp,
     PEXCEPTION_RECORD ExceptionRecord,
-    PVOID ReturnValue
-);	
+    PVOID ReturnValue);	
 	
 ULONG  ZwGetCurrentProcessorNumber(VOID);	
 
@@ -187,43 +183,29 @@ VOID NTAPI HalDisplayString(PVOID szAnsiStr);
 VOID RtlCaptureContext(PCONTEXT ContextRecord);
 
 //Forward declarations of variables
-//static PVOID PoolPtr;
-PMDL	PoolPtr;
-PVOID	AddressPoolptr;
+PMDL PoolPtr;
+PVOID AddressPoolptr;
 PVOID AdressKeBugCheckEx;
-
-// Forward declarations of all funcrions 
-VOID MyBugCheckFunc();	
-
-VOID EventFunc();
-
-PUNWIND_HISTORY_TABLE MyStackTrace64();
-
 PKBUGCHECK_CALLBACK_RECORD BugCheckDataPool;
 
-VOID PoolPtrBugCheckCallback(__in  PVOID Buffer,__in  ULONG Length);
+// Forward declarations of all funcrions 
 
-NTSTATUS STDCALL DriverEntry(__in PDRIVER_OBJECT pDriverObject, __in PUNICODE_STRING path);
-
-VOID DriverUnload( __in PDRIVER_OBJECT pDriverObject);
-
+VOID MyBugCheckFunc();	
+VOID EventFunc();
+PUNWIND_HISTORY_TABLE MyStackTrace64();
+VOID PoolPtrBugCheckCallback(__in PVOID Buffer, __in ULONG Length);
+NTSTATUS DriverEntry(__in PDRIVER_OBJECT pDriverObject, __in PUNICODE_STRING path)
+NTSTATUS  AddDevice(__in PDRIVER_OBJECT DriverObject, __in PDEVICE_OBJECT PhysicalDeviceObject);
+VOID DriverUnload(__in PDRIVER_OBJECT pDriverObject);
 NTSTATUS DriverControl(__in PDEVICE_OBJECT pDeviceObject, __in PIRP Irp);
-
-VOID PoolAlloc();
-
-NTSTATUS GetPage(PVOID PoolPtr);
-
+NTSTATUS PoolAlloc();
 BOOLEAN TestForSwap(PVOID PoolPtr);
-
 VOID RaiseIrql();
-
 VOID KBSOD();
 
-NTSTATUS  AddDevice(  __in PDRIVER_OBJECT DriverObject, __in PDEVICE_OBJECT PhysicalDeviceObject );
 //asm functions
 extern void KeBugPatch(UINT64 a, UINT64 b);
 extern void	GetArgs();
 extern void	SpoilContext();
 extern void PushLock();
-
-
+#endif
